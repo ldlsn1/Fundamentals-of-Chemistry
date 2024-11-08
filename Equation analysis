@@ -1,0 +1,57 @@
+import numpy as np
+
+Chemical_eq = """
+NaCl -k1-> Na+ + Cl-
+3 Cu+2 + 2 NH3 + NaCl -k2-> 4 CuNH3+2 + Na+ + Cl-
+HNO3 --> H+ + NO3-
+"""
+
+# 将每个反应式分割到行
+reactions = Chemical_eq.strip().split('\n')
+
+# 初始化结果列表
+result_co = []
+result_name = []
+k_values = []  # 用于存储每个反应的速率常数
+
+def process_components(components, is_reactant):
+    co, name = [], []
+    for component in components:
+        parts = component.strip().split()
+        coefficient = -1 if is_reactant else 1  # 反应物系数为负，产物为正
+        if parts[0].isdigit():
+            co.append(coefficient * eval(parts[0]))
+            name.append(parts[1])
+        else:
+            co.append(coefficient)
+            name.append(parts[0])
+    return co, name
+
+for reaction in reactions:
+    eq_parts = reaction.split("->")
+    if len(eq_parts) < 2:
+        continue  # 如果没有反应后部分，跳过
+
+    # 获取并存储速率常数
+    rate_constant = eq_parts[0].split('-')[-1].strip()
+    k_values.append(rate_constant)
+    
+    # 处理反应物和产物部分
+    reac = eq_parts[0].split('-')[0].strip().split(' + ')
+    prod = eq_parts[1].strip().split(' + ')
+    
+    co_reac, name_reac = process_components(reac, True)
+    co_prod, name_prod = process_components(prod, False)
+    
+    # 将当前反应的系数和化学式存入结果列表
+    result_co.append(co_reac + co_prod)
+    result_name.append(name_reac + name_prod)
+
+print("化学计量数列表 (result_co):")
+print(result_co)
+
+print("\n化学式列表 (result_name):")
+print(result_name)
+
+print("\n速率常数列表 (k_values):")
+print(k_values)
